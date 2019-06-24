@@ -1,0 +1,5 @@
+# SATM
+
+## Instalación
+
+`npm install`
