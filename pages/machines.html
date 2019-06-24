@@ -1,0 +1,63 @@
+<!-- Flex bar-->
+<div class="d-flex justify-content-between" style="margin-bottom: 15px; margin-top: 15px;">
+    <!-- Search -->
+    <div class="bmd-form-group bmd-collapse-inline pull-xs-right">
+        <button class="btn btn-secondary active bmd-btn-icon" for="search" data-toggle="collapse"
+            data-target="#collapse-search" aria-expanded="false" aria-controls="collapse-search">
+            <i class="fas fa-search"></i>
+        </button>
+        <span id="collapse-search" class="collapse">
+            <input ng-model="mmachines.ctrl.search" style="margin-left: 10px;" class="form-control" type="text"
+                id="search" placeholder="Buscar...">
+        </span>
+    </div>
+    <!-- New -->
+    <button ng-click="machines.ctrl.create()" class="btn btn-success active bmd-btn-icon">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+
+<!-- Content -->
+<div class="row">
+    <!-- Machines with problems -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Equipos criticos</h6>
+            </div>
+            <div class="card-body-no-padding">
+                <ul class="list-group bmd-list-group-sm">
+                    <a ng-repeat="machine in machines.data | limitTo:3" ng-click="machines.ctrl.update(machine)"
+                        class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ machine.short }}</h6>
+                        </div>
+                        <p class="mb-1">{{ machine.description }}</p>
+                        <p class="mb-1">Ubicada en: {{ machine.ubication }}</p>
+                    </a>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- All the machines -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Todos los equipos</h6>
+            </div>
+            <div class="card-body-no-padding">
+                <ul class="list-group bmd-list-group-sm">
+                    <a ng-repeat="machine in machines.data | filter: mmachines.ctrl.search"
+                        ng-click="machines.ctrl.update(machine)"
+                        class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ machine.short }}</h6>
+                        </div>
+                        <p class="mb-1">{{ machine.description }}</p>
+                        <p class="mb-1">Ubicada en: {{ machine.ubication }}</p>
+                    </a>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

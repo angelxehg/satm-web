@@ -1,0 +1,62 @@
+<!-- Flex bar-->
+<div class="d-flex justify-content-between" style="margin-bottom: 15px; margin-top: 15px;">
+    <!-- Search -->
+    <div class="bmd-form-group bmd-collapse-inline pull-xs-right">
+        <button class="btn btn-secondary active bmd-btn-icon" for="search" data-toggle="collapse"
+            data-target="#collapse-search" aria-expanded="false" aria-controls="collapse-search">
+            <i class="fas fa-search"></i>
+        </button>
+        <span id="collapse-search" class="collapse">
+            <input ng-model="materials.ctrl.search" style="margin-left: 10px;" class="form-control" type="text"
+                id="search" placeholder="Buscar...">
+        </span>
+    </div>
+    <!-- New -->
+    <button class="btn btn-success active bmd-btn-icon" data-toggle="modal" data-target="#materialModal">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+
+<!-- Content -->
+<div class="row">
+    <!-- New materials -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Pedir</h6>
+            </div>
+            <div class="card-body-no-padding">
+                <ul class="list-group bmd-list-group-sm">
+                    <a ng-repeat="material in materials.data" ng-click="materials.ctrl.update(material)"
+                        class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ material.short }}</h6>
+                        </div>
+                        <p class="mb-1">{{ material.description }}</p>
+                        <p class="mb-1">Cantidad: {{ material.quantity }}</p>
+                    </a>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- All the materials -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Todos los materiales</h6>
+            </div>
+            <div class="card-body-no-padding">
+                <ul class="list-group bmd-list-group-sm">
+                    <a ng-repeat="material in materials.data | filter:materials.ctrl.search" ng-click="materials.ctrl.update(material)"
+                        class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ material.short }}</h6>
+                        </div>
+                        <p class="mb-1">{{ material.description }}</p>
+                        <p class="mb-1">Cantidad: {{ material.quantity }}</p>
+                    </a>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

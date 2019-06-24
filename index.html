@@ -1,15 +1,510 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" ng-app="satm">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>SATM</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./node_modules/bootstrap-material-design/dist/css/bootstrap-material-design.min.css">
+    <link rel="stylesheet" href="./node_modules/node-snackbar/dist/snackbar.min.css" />
+    <link rel="stylesheet" href="./css/theme.css">
+    <link rel="stylesheet" href="./css/signin.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="./node_modules/@fortawesome/fontawesome-free/css/all.min.css">
 </head>
 
-<body>
+<body ng-controller="mainCtrl">
+    <!-- Login -->
+    <div ng-show="!status.logged" class="text-center fill-page">
+        <form ng-submit="submit(login)" class="form-signin">
+            <img class="mb-4" src="./img/logo.png" alt="" width="120" height="120">
+            <div class="form-group text-left form-signin-div">
+                <label for="loginEmail" class="bmd-label-floating">Correo electrónico</label>
+                <input ng-model="login.email" type="email" class="form-control" id="loginEmail">
+            </div>
+            <div class="form-group text-left form-signin-div">
+                <label for="loginPassword" class="bmd-label-floating">Contraseña</label>
+                <input ng-model="login.password" type="password" class="form-control" id="loginPassword">
+            </div>
+            <div ng-show="status.progress" class="progress" style="margin-top: 15px">
+                <div class="progress-bar" role="progressbar" ng-style="{width: status.progress + '%'}">
+                </div>
+            </div>
+            <button class="btn btn-primary btn-block form-signin-button" type="submit">Iniciar
+                sesión</button>
+        </form>
+    </div>
+    <!-- App content -->
+    <div ng-show="status.logged">
+        <!-- Navigation bar -->
+        <nav class="navbar navbar-expand-sm sticky-top navbar-light bg-light">
+            <!-- Brand and collapse button -->
+            <a class="navbar-brand" href="#">
+                <img src="./img/logo.png" style="max-width: 30px; max-height: 30px;" class="d-inline-block align-top"
+                    alt="">
+                SATM (UTZAC)
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Content -->
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <!-- Menus -->
+                    <li ng-repeat="page in pages" class="nav-item {{ ui.isCurrentPage(page.key) }}">
+                        <a class="nav-link" href="#!{{ page.key }}">{{ page.title }}</span></a>
+                    </li>
+                </ul>
+                <form class="form-inline my-lg-0">
+                    <button ng-click="session.logout()" class="btn btn-danger my-2 my-sm-0" type="submit">Salir</button>
+                </form>
+            </div>
+        </nav>
+        <!-- Container -->
+        <div ng-view class="container-fluid">
+
+        </div>
+    </div>
+    <!-- Modals -->
+    <div>
+        <!-- Modal machine -->
+        <div class="modal fade" id="machineModal" tabindex="-1" role="dialog" style="background-color: #00000080;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="m-0 font-weight-bold">Editar equipo</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="machineForm" ng-submit="machines.ctrl.submit()">
+                            <div class="form-group text-left">
+                                <label for="machineBrand" class="bmd-label-floating">Marca</label>
+                                <input ng-model="machines.ctrl.data.brand" type="text" class="form-control"
+                                    id="machineBrand">
+                                <span class="bmd-help">Especifique la marca del equipo. Ej. Microsoft</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.brand" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="machineModel" class="bmd-label-floating">Modelo</label>
+                                <input ng-model="machines.ctrl.data.model" type="text" class="form-control"
+                                    id="machineModel">
+                                <span class="bmd-help">Especifique el modelo del equipo. Ej. Surface 2019</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.model" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="machineDescription" class="bmd-label-floating">Descripción</label>
+                                <input ng-model="machines.ctrl.data.description" type="text" class="form-control"
+                                    id="machineDescription">
+                                <span class="bmd-help">Escriba una descripción breve del equipo. Ej. PC</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.description" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="machineUbication" class="bmd-label-floating">Ubicación</label>
+                                <input ng-model="machines.ctrl.data.ubication" type="text" class="form-control"
+                                    id="machineUbication">
+                                <span class="bmd-help">Especifique la ubicación actual del equipo. Ej. Laboratorio
+                                    15</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.ubication" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div ng-show="!machines.ctrl.createMode" class="form-group text-left"
+                                style="margin-top: 35px; margin-bottom: 20px;">
+                                <div class="d-flex justify-content-between">
+                                    <label for="machineComponents" class="bmd-label-floating">Componentes</label>
+                                    <!-- New -->
+                                    <span class="btn-group-lg">
+                                        <button type="button" ng-click="components.ctrl.create(machines.ctrl.data)"
+                                            class="btn btn-success active bmd-btn-icon">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                                <ul class="list-group bmd-list-group-sm">
+                                    <a ng-click="components.ctrl.update(component)"
+                                        ng-repeat="component in components.data | filter:{machine_id:machines.ctrl.data.id}:true"
+                                        href=""
+                                        class="list-group-item">{{ component.brand + " " + component.model }}</a>
+                                </ul>
+                            </div>
+                            <span class="btn-group-lg">
+                                <button type="submit" class="btn btn-primary bmd-btn-fab">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </span>
+                            <span ng-show="!machines.ctrl.createMode" class="btn-group-lg">
+                                <button type="button" ng-click="machines.ctrl.delete()"
+                                    class="btn btn-danger bmd-btn-fab">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal component -->
+        <div class="modal fade" id="componentModal" tabindex="-1" role="dialog" style="background-color: #00000080;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="m-0 font-weight-bold">Editar componente</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="componentForm" ng-submit="components.ctrl.submit()">
+                            <div class="form-group text-left">
+                                <label for="componentBrand" class="bmd-label-floating">Marca</label>
+                                <input ng-model="components.ctrl.data.brand" type="text" class="form-control"
+                                    id="componentBrand">
+                                <span class="bmd-help">Especifique la marca del componente. Ej. Microsoft</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.brand" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="componentModel" class="bmd-label-floating">Modelo</label>
+                                <input ng-model="components.ctrl.data.model" type="text" class="form-control"
+                                    id="componentModel">
+                                <span class="bmd-help">Especifique el modelo del componente. Ej. Surface 2019</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.model" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="componentDescription" class="bmd-label-floating">Descripción</label>
+                                <input ng-model="components.ctrl.data.description" type="text" class="form-control"
+                                    id="componentDescription">
+                                <span class="bmd-help">Escriba una descripción breve del componente. Ej. PC</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.description" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <span class="btn-group-lg">
+                                <button type="submit" class="btn btn-primary bmd-btn-fab">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </span>
+                            <span ng-show="!components.ctrl.createMode" class="btn-group-lg">
+                                <button type="button" ng-click="components.ctrl.delete()"
+                                    class="btn btn-danger bmd-btn-fab">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal user -->
+        <div class="modal fade" id="userModal" tabindex="-1" role="dialog" style="background-color: #00000080;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="m-0 font-weight-bold">Editar usuario</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="userForm" ng-submit="users.ctrl.submit()">
+                            <div class="form-group text-left">
+                                <label for="userName" class="bmd-label-floating">Nombre</label>
+                                <input ng-model="users.ctrl.data.name" type="text" class="form-control" id="userName">
+                                <span class="bmd-help">Escriba el nombre completo del usuario. Ej. Angel Hurtado</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.name" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="userEmail" class="bmd-label-floating">Correo electrónico</label>
+                                <input ng-model="users.ctrl.data.email" type="email" class="form-control"
+                                    id="userEmail">
+                                <span class="bmd-help">Especifique el email del usuario. Ej. peranghx@outlook.es</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.email" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="userHability" class="bmd-label-floating">Profesión</label>
+                                <input ng-model="users.ctrl.data.hability" type="text" class="form-control"
+                                    id="userHability">
+                                <span class="bmd-help">Escriba la profesión del usuario. Ej. Mecánico</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.hability" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div ng-show="status.current.id == 1" class="checkbox">
+                                <label>
+                                    <input ng-model="users.ctrl.data.isAdmin" type="checkbox"> Administrador
+                                </label>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="userPassword" class="bmd-label-floating">Contraseña</label>
+                                <input ng-model="users.ctrl.data.password" type="password" class="form-control"
+                                    id="userPassword">
+                                <span class="bmd-help">Escriba una nueva contraseña</span>
+                                <span ng-show="!users.ctrl.createMode" class="bmd-help text-danger">Si no desea cambiar
+                                    la contraseña, deje este campo VACIO!</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.password" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="userPasswordConfirmation" class="bmd-label-floating">Confirmar
+                                    Contraseña</label>
+                                <input ng-model="users.ctrl.data.password_confirmation" type="password"
+                                    class="form-control" id="userPasswordConfirmation">
+                                <span class="bmd-help">Escriba otra vez la nueva contraseña</span>
+                                <span ng-show="!users.ctrl.createMode" class="bmd-help text-danger">Si no desea cambiar
+                                    la contraseña, deje este campo VACIO!</span>
+                            </div>
+                            <span class="btn-group-lg">
+                                <button type="submit" class="btn btn-primary bmd-btn-fab">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </span>
+                            <span ng-show="!users.ctrl.createMode && users.ctrl.data.id != status.current.id"
+                                class="btn-group-lg">
+                                <button type="button" ng-click="users.ctrl.delete()" class="btn btn-danger bmd-btn-fab">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal task -->
+        <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" style="background-color: #00000080;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="m-0 font-weight-bold">Editar tarea</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="taskForm" ng-submit="tasks.ctrl.submit()">
+                            <div class="form-group text-left">
+                                <label for="taskTitle" class="bmd-label-floating">Título</label>
+                                <input ng-model="tasks.ctrl.data.title" type="text" class="form-control" id="taskTitle">
+                                <span class="bmd-help">Escriba un título breve de la tarea</span>
+                                <!-- Validation text -->
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.title" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="taskDescription" class="bmd-label-floating">Descripción</label>
+                                <input ng-model="tasks.ctrl.data.description" type="text" class="form-control"
+                                    id="taskDescription">
+                                <span class="bmd-help">Escriba otra una descripción detallada de la tarea</span>
+                                <!-- Validation text -->
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.description" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskPriority" class="bmd-label-floating">Prioridad</label>
+                                <select ng-model="tasks.ctrl.data.priority" class="form-control" id="taskPriority">
+                                    <option value="0">Importante y urgente</option>
+                                    <option value="1">Importante</option>
+                                    <option value="2">Urgente</option>
+                                    <option value="3">No prioritario</option>
+                                </select>
+                                <!-- Validation text -->
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.priority" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="taskDueDate" class="bmd-label-floating">Fecha</label>
+                                <input ng-model="tasks.ctrl.data.dueDate" type="date" class="form-control"
+                                    id="taskDueDate">
+                                <span class="bmd-help">Seleccione una fecha limite para la tarea</span>
+                                <!-- Validation text -->
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.dueDate" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskComponent" class="bmd-label-floating">Componente</label>
+                                <select
+                                    ng-options="component as component.short for component in components.data track by component.id"
+                                    ng-model="tasks.ctrl.data.component" class="form-control" id="taskComponent">
+                                </select>
+                                <!-- Validation text -->
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.component_id" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskUser" class="bmd-label-floating">Usuario</label>
+                                <select ng-options="user as user.short for user in users.data track by user.id"
+                                    ng-model="tasks.ctrl.data.user" class="form-control" id="taskUser">
+                                </select>
+                                <!-- Validation text -->
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.user_id" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <span class="btn-group-lg">
+                                <button type="submit" class="btn btn-primary bmd-btn-fab">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </span>
+                            <span ng-show="!tasks.ctrl.createMode" class="btn-group-lg">
+                                <button type="button" ng-click="tasks.ctrl.delete()" class="btn btn-danger bmd-btn-fab">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal material -->
+        <div class="modal fade" id="materialModal" tabindex="-1" role="dialog" style="background-color: #00000080;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="m-0 font-weight-bold">Editar material</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="materialForm" ng-submit="materials.ctrl.submit()">
+                            <div class="form-group text-left">
+                                <label for="materialBrand" class="bmd-label-floating">Marca</label>
+                                <input ng-model="materials.ctrl.data.brand" type="text" class="form-control"
+                                    id="materialBrand">
+                                <span class="bmd-help">Especifique la marca del material. Ej. Microsoft</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.brand" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="materialModel" class="bmd-label-floating">Modelo</label>
+                                <input ng-model="materials.ctrl.data.model" type="text" class="form-control"
+                                    id="materialModel">
+                                <span class="bmd-help">Especifique el modelo del material. Ej. Surface 2019</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.model" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="materialDescription" class="bmd-label-floating">Descripción</label>
+                                <input ng-model="materials.ctrl.data.description" type="text" class="form-control"
+                                    id="materialDescription">
+                                <span class="bmd-help">Escriba una descripción breve del material. Ej. Tornillos</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.description" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group text-left">
+                                <label for="materialQuantity" class="bmd-label-floating">Cantidad</label>
+                                <input ng-model="materials.ctrl.data.quantity" type="text" class="form-control"
+                                    id="materialQuantity">
+                                <span class="bmd-help">Especifique la cantidad actual. Ej. Surface 2019</span>
+                                <div>
+                                    <small ng-repeat="mistake in status.mistakes.quantity" class="form-text text-danger">
+                                        {{ mistake }}
+                                    </small>
+                                </div>
+                            </div>
+                            <span class="btn-group-lg">
+                                <button type="submit" class="btn btn-primary bmd-btn-fab">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </span>
+                            <span ng-show="!materials.ctrl.createMode" class="btn-group-lg">
+                                <button type="button" ng-click="materials.ctrl.delete()"
+                                    class="btn btn-danger bmd-btn-fab">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="./node_modules/popper.js/dist/umd/popper.min.js"></script>
+    <script src="./node_modules/snackbarjs/dist/snackbar.min.js"></script>
+    <script src="./node_modules/bootstrap-material-design/dist/js/bootstrap-material-design.min.js"></script>
+    <!-- Material design efects -->
+    <script>$(document).ready(function () { $('body').bootstrapMaterialDesign(); });</script>
+    <script src="./node_modules/node-snackbar/dist/snackbar.min.js"></script>
+    <!-- Angular-->
+    <script src="./node_modules/angular/angular.min.js"></script>
+    <script src="./node_modules/angular-route/angular-route.min.js"></script>
+    <script src="./node_modules/angular-toastr/dist/angular-toastr.tpls.min.js"></script>
+    <!-- Angular App -->
+    <script src="./js/classes.js"></script>
+    <script src="./js/synth.js"></script>
+    <script src="./js/synth.collate.js"></script>
+    <script src="./js/synth.trigger.js"></script>
+    <script src="./js/synth.shttp.js"></script>
+    <script src="./js/synth.daemon.js"></script>
+    <script src="./js/synth.trade.js"></script>
     <script src="./js/app.js"></script>
 </body>
 

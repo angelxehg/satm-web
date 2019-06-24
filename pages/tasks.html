@@ -1,0 +1,70 @@
+<!-- Flex bar-->
+<div class="d-flex justify-content-between" style="margin-bottom: 15px; margin-top: 15px;">
+    <!-- Search -->
+    <div class="bmd-form-group bmd-collapse-inline pull-xs-right">
+        <button class="btn btn-secondary active bmd-btn-icon" for="search" data-toggle="collapse"
+            data-target="#collapse-search" aria-expanded="false" aria-controls="collapse-search">
+            <i class="fas fa-search"></i>
+        </button>
+        <span id="collapse-search" class="collapse">
+            <input ng-model="tasks.ctrl.search" style="margin-left: 10px;" class="form-control" type="text" id="search"
+                placeholder="Buscar...">
+        </span>
+    </div>
+    <!-- New -->
+    <button ng-click="tasks.ctrl.create()" class="btn btn-success active bmd-btn-icon">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+
+<div class="row">
+    <!-- My tasks -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Mis tareas pendientes</h6>
+            </div>
+            <div class="card-body-no-padding">
+                <ul class="list-group bmd-list-group-sm">
+                    <a ng-repeat="task in tasks.data | filter:{user_id:status.current.id}:true"
+                        ng-click="tasks.ctrl.update(task)"
+                        class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ task.short }}</h6>
+                            <span class="badge badge-{{ task.color }} badge-pill"
+                                style="padding-top: 6px">{{ task.priorityText }}</span>
+                        </div>
+                        <p class="mb-1">{{ task.description }}</p>
+                        <p class="mb-1">Equipo: {{ task.component.machine.short }}</p>
+                        <p class="mb-1">Asignada a: {{ task.user.short }}</p>
+                        <p class="mb-1">Limite: {{ task.dueDate | date : "dd/MM/yyyy" }}</p>
+                    </a>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- All the tasks -->
+    <div ng-show="status.admin" class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Todas las tareas</h6>
+            </div>
+            <div class="card-body-no-padding">
+                <ul class="list-group bmd-list-group-sm">
+                    <a ng-repeat="task in tasks.data | filter:tasks.ctrl.search" ng-click="tasks.ctrl.update(task)"
+                        class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ task.short }}</h6>
+                            <span class="badge badge-{{ task.color }} badge-pill"
+                                style="padding-top: 6px">{{ task.priorityText }}</span>
+                        </div>
+                        <p class="mb-1">{{ task.description }}</p>
+                        <p class="mb-1">Equipo: {{ task.component.machine.short }}</p>
+                        <p class="mb-1">Asignada a: {{ task.user.short }}</p>
+                        <p class="mb-1">Limite: {{ task.dueDate | date : "dd/MM/yyyy" }}</p>
+                    </a>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
